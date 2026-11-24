@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node / frontend (dashboard)
+node_modules/
+dist/
+build/
+
+# Secretos y Firebase (nunca subir credenciales)
+.env
+.env.*
+*.local
+serviceAccountKey.json
+.firebase/
+firebase-debug.log
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
