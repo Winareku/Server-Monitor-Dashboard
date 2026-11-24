@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -18,7 +20,7 @@ import Sparkline from '../components/charts/Sparkline'
 import CellMeter from '../components/charts/CellMeter'
 import RequestsLogSection from '../components/logs/RequestsLogSection'
 
-import { sampleLogs } from '../data/sampleLogs'
+import useFetchLogs from '../hooks/useFetchLogs'
 import { DATE_RANGE_BOUNDS, DEFAULT_FILTERS, ERROR_RATE_ALERT, PAGE_SIZE } from '../constants'
 import { filterLogs } from '../utils/filterLogs'
 import {
@@ -44,7 +46,8 @@ export default function DashboardPage() {
     const { start, end } = DATE_RANGE_BOUNDS[filters.dateRange]
     return daysBetween(start, end)
   }, [filters.dateRange])
-  const logs = useMemo(() => filterLogs(sampleLogs, filters), [filters])
+  const { logs: allLogs, loading, error } = useFetchLogs('access_logs')
+  const logs = useMemo(() => filterLogs(allLogs, filters), [allLogs, filters])
   const kpis = useMemo(() => computeKpis(logs, days.length), [logs, days.length])
   const dailyCounts = useMemo(() => buildDailyCounts(logs, days), [logs, days])
   const dailyAvgResponse = useMemo(() => buildDailyAvgResponse(logs, days), [logs, days])
@@ -53,6 +56,24 @@ export default function DashboardPage() {
 
   const errorAlert = kpis.errorRate > ERROR_RATE_ALERT
 
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      </DashboardLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <Alert severity="error">No se pudieron cargar los datos: {error}</Alert>
+      </DashboardLayout>
+    )
+  }
+
   return (
     <DashboardLayout>
       <Stack spacing={{ xs: 2.5, md: 3 }}>
@@ -60,7 +81,7 @@ export default function DashboardPage() {
         <DashboardHeader
           title="Monitoreo de servidores web"
           subtitle="Registros de acceso HTTP de una empresa SaaS con 3 servidores"
-          dataInfo={`01/01/2024 – 06/02/2024, ${formatNumber(sampleLogs.length)} registros`}
+          dataInfo={`01/01/2024 – 06/02/2024, ${formatNumber(allLogs.length)} registros`}
         />
         </Box>
 
