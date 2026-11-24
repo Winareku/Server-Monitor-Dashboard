@@ -1,0 +1,351 @@
+/* Hallmark · v2.0.0 · theme: console (by request) · console: graphite · genre: modern-minimal · shape: app screen · redesign: restyle · data: sample */
+/* critique: an instrument kept by careful people; graphite in three steps, cool blue for what was measured, amber for what a person does (focus, selection, pointer), ok and bad only for status */
+/* waivers: donut kept (MethodsDonut is the planned chart of the project) · chart library kept (@mui/x-charts already approved) · motion beyond the theme's "value changes only" by the user's request: menus, presses, page entrance and value changes carry a directional motion blur, all off under reduced motion */
+
+:root {
+  color-scheme: dark;
+
+  /* Grafito en tres niveles (más uno para hover) */
+  --color-paper: #0D1013;
+  --color-paper-2: #15191C;
+  --color-paper-3: #06080B;
+  --color-paper-4: #1E2226;
+
+  /* Tinta */
+  --color-ink: #ECEFF2;
+  --color-ink-2: #C3C8CC;
+  --color-muted: #9DA2A8;
+  --color-rule: #2D3135;
+  --color-rule-2: #484E54;
+
+  /* Ámbar: lo que hace una persona (foco, selección, puntero, acción) */
+  --color-accent: #F7B83D;
+  --color-accent-hi: #FFCC69;
+  --color-accent-ink: #1C0E00;
+  --color-accent-soft: #38280A;
+  --color-focus: #F7B83D;
+
+  /* Azul frío: lo que mide un instrumento (lecturas, series) */
+  --color-cool: #6EBCFC;
+  --color-cool-2: #4A91D1;
+  --color-cool-3: #316CA5;
+  --color-cool-4: #A8D8FB;
+  --color-cool-soft: #142E43;
+
+  /* Estado */
+  --color-ok: #61CB7C;
+  --color-ok-soft: #162519;
+  --color-bad: #F66D67;
+  --color-bad-ink: #FF958D;
+  --color-bad-soft: #2F1A18;
+
+  /* Tipografía */
+  --font-display: "Host Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Host Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Forma */
+  --radius-card: 10px;
+  --radius-control: 6px;
+  --rule-hair: 1px;
+  --shadow-pop: 0 16px 40px -12px rgb(0 0 0 / 0.7), 0 0 0 1px var(--color-rule-2);
+
+  /* Movimiento */
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-medium: 320ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-press: cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 30%, transparent);
+  color: var(--color-ink);
+}
+
+/* Anillo de foco ámbar, visible al instante en todo lo interactivo */
+:where(a, button, [role="button"], [role="combobox"], [tabindex], input, select, textarea, li[role="option"]):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  transition: none;
+}
+
+/* ===== Motion blur direccional =====
+   Los filtros #mb-y-* y #mb-x-* (SVG, en MotionFilters.tsx) desenfocan solo en el eje del movimiento.
+   Cada animación pasa de mucho a poco desenfoque mientras se desplaza, como una cámara. */
+
+@keyframes menu-in {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.97); filter: url(#mb-y-3); }
+  35% { opacity: 1; filter: url(#mb-y-2); }
+  65% { filter: url(#mb-y-1); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes menu-out {
+  0% { opacity: 1; transform: none; filter: none; }
+  50% { filter: url(#mb-y-1); }
+  100% { opacity: 0; transform: translateY(-6px) scale(0.98); filter: url(#mb-y-2); }
+}
+
+@keyframes item-in {
+  0% { opacity: 0; transform: translateX(-8px); filter: url(#mb-x-2); }
+  60% { filter: url(#mb-x-1); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes rise-in {
+  0% { opacity: 0; transform: translateY(14px); filter: url(#mb-y-3); }
+  40% { filter: url(#mb-y-2); }
+  70% { filter: url(#mb-y-1); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes value-in {
+  0% { opacity: 0; transform: translateY(10px); filter: url(#mb-y-3); }
+  45% { opacity: 1; filter: url(#mb-y-1); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes row-in {
+  0% { opacity: 0; transform: translateX(-12px); filter: url(#mb-x-3); }
+  50% { filter: url(#mb-x-1); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes bar-in {
+  0% { transform: scaleX(0); filter: url(#mb-x-3); }
+  60% { filter: url(#mb-x-1); }
+  100% { transform: scaleX(1); filter: none; }
+}
+
+/* ===== Hover de las tarjetas KPI =====
+   Sin cambio brusco de color: una luz sigue al cursor, el borde se recorre una vez,
+   la tarjeta sube despacio y su contenido reacciona con motion blur. */
+
+@property --sweep {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.MuiCard-root.kpi-card {
+  --glow: 110 188 252; /* azul frío */
+  isolation: isolate;
+  transition:
+    transform 520ms var(--ease-out),
+    border-color 520ms var(--ease-out),
+    box-shadow 520ms var(--ease-out);
+}
+
+.kpi-card[data-alert="true"] {
+  --glow: 246 109 103; /* rojo de estado */
+}
+
+.kpi-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Luz que sigue al cursor */
+.kpi-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgb(var(--glow) / 0.12), transparent 65%);
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+
+/* Línea de luz que recorre el borde una vez */
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from var(--sweep), transparent 0deg, rgb(var(--glow) / 0.95) 50deg, transparent 120deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out);
+}
+
+@keyframes border-sweep {
+  0% { --sweep: -60deg; opacity: 0; }
+  12% { opacity: 1; }
+  100% { --sweep: 300deg; opacity: 0.28; }
+}
+
+/* La cifra da un pequeño salto con desenfoque vertical */
+@keyframes kpi-nudge {
+  0% { transform: none; filter: none; }
+  30% { transform: translateY(-5px); filter: url(#mb-y-2); }
+  62% { transform: translateY(1px); filter: url(#mb-y-1); }
+  100% { transform: none; filter: none; }
+}
+
+/* La minigráfica completa (línea y relleno) se revela de izquierda a derecha.
+   Se usa un recorte y no trazos discontinuos: con vector-effect: non-scaling-stroke
+   el largo de los trazos no coincide con la línea estirada y dejaba un hueco. */
+@keyframes spark-reveal {
+  0% { clip-path: inset(-4px 100% -4px 0); filter: url(#mb-x-3); }
+  60% { filter: url(#mb-x-1); }
+  100% { clip-path: inset(-4px -4px -4px 0); filter: none; }
+}
+
+/* Las celdas encendidas del medidor laten en cascada */
+@keyframes cell-pulse {
+  0% { transform: none; filter: none; }
+  40% { transform: scaleY(1.5); filter: brightness(1.5) url(#mb-y-1); }
+  100% { transform: none; filter: none; }
+}
+
+@media (hover: hover) {
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-rule-2);
+    box-shadow: 0 22px 40px -24px rgb(0 0 0 / 0.95), 0 0 0 1px rgb(var(--glow) / 0.06);
+  }
+
+  .kpi-card:hover::after {
+    opacity: 1;
+  }
+
+  .kpi-card:hover::before {
+    animation: border-sweep 1500ms var(--ease-out) forwards;
+  }
+
+  .kpi-card:hover .kpi-value {
+    animation: kpi-nudge 460ms var(--ease-out);
+  }
+
+  .kpi-card:hover .spark {
+    animation: spark-reveal 760ms var(--ease-out);
+  }
+
+  .kpi-card:hover .meter-cell.on {
+    animation: cell-pulse 560ms var(--ease-out) both;
+    animation-delay: calc(var(--d, 0) * 16ms);
+  }
+}
+
+/* ===== Hover de los filtros Fecha y Servidor =====
+   El mismo lenguaje que las tarjetas KPI, a escala de un control. */
+
+.select-hover {
+  transition: transform 460ms var(--ease-out);
+}
+
+.select-hover .MuiOutlinedInput-root {
+  isolation: isolate;
+  transition:
+    background-color 460ms var(--ease-out),
+    box-shadow 460ms var(--ease-out);
+}
+
+/* Luz que sigue al cursor (detrás del texto, sobre el fondo) */
+.select-hover .MuiOutlinedInput-root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), rgb(247 184 61 / 0.12), transparent 70%);
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out);
+}
+
+/* Línea de luz ámbar que recorre el borde una vez */
+.select-hover .MuiOutlinedInput-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from var(--sweep), transparent 0deg, rgb(247 184 61 / 0.95) 55deg, transparent 130deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+}
+
+.select-value {
+  display: inline-block;
+  animation: value-in var(--dur-medium) var(--ease-out) backwards;
+}
+
+/* La flecha baja un poco y vuelve, con desenfoque vertical */
+@keyframes caret-nudge {
+  0% { translate: 0 0; filter: none; }
+  35% { translate: 0 3px; filter: url(#mb-y-2); }
+  70% { translate: 0 -1px; filter: url(#mb-y-1); }
+  100% { translate: 0 0; filter: none; }
+}
+
+@media (hover: hover) {
+  .select-hover:hover {
+    transform: translateY(-2px);
+  }
+
+  .select-hover:hover .MuiOutlinedInput-root {
+    box-shadow: 0 14px 28px -18px rgb(0 0 0 / 0.95);
+  }
+
+  /* Con foco, se conserva el halo ámbar además de la sombra */
+  .select-hover:hover .MuiOutlinedInput-root.Mui-focused {
+    box-shadow: 0 0 0 4px var(--color-accent-soft), 0 14px 28px -18px rgb(0 0 0 / 0.95);
+  }
+
+  .select-hover:hover .MuiOutlinedInput-root::after {
+    opacity: 1;
+  }
+
+  .select-hover:hover .MuiOutlinedInput-root::before {
+    animation: border-sweep 1300ms var(--ease-out) forwards;
+  }
+
+  .select-hover:hover .select-value {
+    animation: kpi-nudge 420ms var(--ease-out);
+  }
+
+  .select-hover:hover .MuiSelect-icon:not(.MuiSelect-iconOpen) {
+    animation: caret-nudge 460ms var(--ease-out);
+  }
+}
+
+/* Entrada de la página: cada bloque sube una vez con desenfoque vertical */
+.enter {
+  animation: rise-in var(--dur-medium) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}

@@ -62,10 +62,12 @@ export type LogColumnKey =
   | 'timestamp'
   | 'server_id'
   | 'method'
+  | 'path'
   | 'status_code'
   | 'response_time_ms'
 
 export interface LogColumn {
   key: LogColumnKey
   label: string
+  align?: 'left' | 'right'
 }

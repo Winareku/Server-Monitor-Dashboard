@@ -1,5 +1,6 @@
-import Stack from '@mui/material/Stack'
+import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import { tk } from '../../theme'
 
 interface DashboardHeaderProps {
   title: string
@@ -13,27 +14,35 @@ export default function DashboardHeader({
   dataInfo,
 }: DashboardHeaderProps) {
   return (
-    // Escritorio: título a la izquierda y datos a la derecha.
-    // Móvil: todo agrupado en un mismo bloque (columna).
-    <Stack
-      direction={{ xs: 'column', md: 'row' }}
-      spacing={0.5}
+    // Banda de grafito con el periodo de los datos, el título y la descripción.
+    <Box
+      component="header"
       sx={{
-        justifyContent: 'space-between',
-        alignItems: { xs: 'flex-start', md: 'flex-end' },
+        borderRadius: 2,
+        bgcolor: tk.paper3,
+        color: tk.ink,
+        border: `1px solid ${tk.rule}`,
+        p: { xs: 3, md: 4 },
       }}
     >
-      <div>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {subtitle}
-        </Typography>
-      </div>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        component="p"
+        sx={{
+          fontFamily: tk.fontMono,
+          fontSize: '0.75rem',
+          color: tk.cool,
+          mb: 1.5,
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
         {dataInfo}
       </Typography>
-    </Stack>
+      <Typography variant="h1" sx={{ color: tk.ink }}>
+        {title}
+      </Typography>
+      <Typography variant="body2" sx={{ color: tk.muted, mt: 1, maxWidth: 420 }}>
+        {subtitle}
+      </Typography>
+    </Box>
   )
 }
